@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KOOL Webinar</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          },
+          animation: {
+            'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'bounce-short': 'bounce 0.6s infinite',
+            'spin-slow': 'spin 8s linear infinite',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.4);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.7);
+    }
+
+    /* Slot Display Glow */
+    .slot-glow {
+      box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.3);
+    }
+
+    .dark .slot-glow {
+      box-shadow: 0 0 45px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Shimmer effect for winner card */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .shimmer-bg {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s infinite;
+    }
+
+    /* Flip animation */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen lg:h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden flex flex-col transition-colors duration-300">
+
+  <!-- Top Navigation Header -->
+  <header
+    class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 shrink-0">
+    <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+
+      <!-- Title -->
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div class="min-w-0">
+          <h1
+            class="font-display text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent truncate">
+            KOOL Webinar
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block truncate">Random Name Picker
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Controls Header Tools -->
+      <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <!-- Reset Pool Button (Does not delete names) -->
+        <button id="resetPoolBtn3"
+          class="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition"
+          title="Reset selection pool (re-enables all names without deleting)">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+          <span class="hidden sm:inline">Reset Pool</span>
+        </button>
+
+        <!-- Clear All Names Button -->
+        <button id="clearAllNamesBtn"
+          class="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs font-semibold rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition"
+          title="Clear all names from the pool">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+          <span class="hidden sm:inline">Clear All</span>
+        </button>
+
+        <!-- Sound Effect Toggle -->
+        <button id="soundToggleBtn"
+          class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+          title="Toggle Sound Effects">
+          <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+        </button>
+
+        <!-- Preset Loader Menu Button -->
+        <button id="presetBtn"
+          class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 text-xs font-semibold rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition"
+          title="Presets">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span class="hidden sm:inline">Presets</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Layout Container -->
+  <main class="flex-1 max-w-7xl 2xl:max-w-screen-2xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 min-h-0 lg:overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:h-full lg:min-h-0">
+
+      <!-- LEFT / MAIN SECTION: THE LOTTERY DISPLAY & PICKER CONTROL (7 Cols) -->
+      <section class="lg:col-span-7 flex flex-col gap-3 sm:gap-4 lg:h-full lg:min-h-0 justify-between">
+
+        <!-- Stat Counter Badges -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+          <div
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-center shadow-sm">
+            <span class="block text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Total Pool</span>
+            <span id="totalNamesCount"
+              class="font-display text-lg sm:text-2xl font-bold text-slate-800 dark:text-slate-100">0</span>
+          </div>
+          <div
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-center shadow-sm">
+            <span class="block text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Remaining</span>
+            <span id="remainingNamesCount"
+              class="font-display text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</span>
+          </div>
+          <div
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-center shadow-sm">
+            <span class="block text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Drawn</span>
+            <span id="drawnNamesCount"
+              class="font-display text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</span>
+          </div>
+        </div>
+
+        <!-- Center Stage: The Draw Box / Digital Reel -->
+        <div
+          class="relative bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 text-center shadow-xl slot-glow overflow-hidden flex-1 flex flex-col justify-between min-h-[260px] sm:min-h-0">
+
+          <!-- Background Decorative Elements -->
+          <div class="absolute -top-16 -left-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none">
+          </div>
+          <div class="absolute -bottom-16 -right-16 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none">
+          </div>
+
+          <!-- Selection Mode Badge -->
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-3 border border-slate-200 dark:border-slate-700 self-center">
+            <span id="drawStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="drawStatusText">Ready to Pick</span>
+          </div>
+
+          <!-- Digital Ticker Display Area -->
+          <div
+            class="relative min-h-[110px] sm:min-h-[140px] flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-950/70 rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-3 sm:p-4 my-1 overflow-hidden group">
+
+            <!-- Default Placeholder State -->
+            <div id="displayPlaceholder"
+              class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 space-y-1.5 sm:space-y-2 p-2">
+              <i class="fa-solid fa-clapperboard text-3xl sm:text-4xl mb-1 text-indigo-400/60 dark:text-indigo-500/40"></i>
+              <p class="font-medium text-xs sm:text-base max-w-sm">Add names to the pool and hit the button below!</p>
+            </div>
+
+            <!-- Cycling Display Name Text -->
+            <div id="displayNameContainer" class="hidden flex-col items-center justify-center w-full">
+              <span id="displayNameSub"
+                class="text-xs uppercase tracking-widest font-bold text-indigo-500 dark:text-indigo-400 mb-1 opacity-0 transition-opacity">Selecting
+                Winner...</span>
+              <h2 id="displayName"
+                class="font-display text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white transition-all duration-100 break-words line-clamp-2 px-2">
+                ---
+              </h2>
+            </div>
+          </div>
+
+          <!-- Giant Draw Action Button -->
+          <div class="mt-3 sm:mt-4 flex flex-col items-center gap-2.5 sm:gap-3 shrink-0">
+            <button id="drawBtn" disabled
+              class="w-full sm:w-auto min-w-0 sm:min-w-[240px] px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-display font-extrabold text-sm sm:text-lg text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_auto] hover:bg-right transition-all duration-500 shadow-lg shadow-indigo-500/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-3 group">
+              <span id="drawBtnText">SELECT A NAME</span>
+            </button>
+
+            <!-- Draw Rules & Options Bar -->
+            <div
+              class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div class="flex flex-wrap items-center gap-3 sm:gap-5">
+                <label
+                  class="flex items-center gap-2 cursor-pointer font-medium text-slate-600 dark:text-slate-300 select-none">
+                  <input type="checkbox" id="eliminationModeToggle"
+                    class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+                  <span>Remove name after pick <span class="text-slate-400 font-normal">(no repeats)</span></span>
+                </label>
+
+                <label
+                  class="flex items-center gap-2 cursor-pointer font-medium text-slate-600 dark:text-slate-300 select-none">
+                  <input type="checkbox" id="disableCategoryToggle"
+                    class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+                  <span>Disable same category after pick</span>
+                </label>
+              </div>
+
+              <button id="resetPoolBtn"
+                class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold flex items-center gap-1.5 transition self-end sm:self-auto">
+                <i class="fa-solid fa-rotate-left text-xs"></i>
+                Reset Selection Pool
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Winner Card Modal Spotlight (Popped on draw) -->
+        <div id="winnerModal"
+          class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+          <div id="winnerModalCard"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-center shadow-2xl scale-95 transition-transform duration-300 relative">
+
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+            </div>
+
+            <div
+              class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+              <i class="fa-solid fa-crown animate-bounce"></i>
+            </div>
+
+            <span class="text-xs font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">We Have
+              a Winner!</span>
+
+            <div class="my-4 space-y-2">
+              <h3 id="modalWinnerName"
+                class="font-display text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight px-2 leading-tight">
+                Winner Name
+              </h3>
+              <div id="modalWinnerCategoryContainer" class="hidden">
+                <span id="modalWinnerCategoryText"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 shadow-sm">
+                  Category
+                </span>
+              </div>
+            </div>
+
+            <p id="modalWinnerSub" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Selected at <span id="modalWinnerTime">--:--</span>
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button id="drawAgainBtn"
+                class="w-full sm:w-1/2 px-5 py-3 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate"></i>
+                Draw Next
+              </button>
+              <button id="closeModalBtn"
+                class="w-full sm:w-1/2 px-5 py-3 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT SECTION: NAME MANAGEMENT & HISTORY TABS (5 Cols) -->
+      <section
+        class="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-sm flex flex-col h-[520px] sm:h-[580px] lg:h-full min-h-[480px] lg:min-h-0 overflow-hidden">
+
+        <!-- Tab Navigation Header -->
+        <div
+          class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-1.5 gap-1 shrink-0">
+          <button id="tabManageBtn"
+            class="flex-1 py-2.5 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm">
+            <i class="fa-solid fa-list-check"></i>
+            Names List
+            <span id="tabNamesCountBadge"
+              class="ml-1 px-2 py-0.5 text-[10px] rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">0</span>
+          </button>
+          <button id="tabHistoryBtn"
+            class="flex-1 py-2.5 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            History
+            <span id="tabHistoryCountBadge"
+              class="ml-1 px-2 py-0.5 text-[10px] rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">0</span>
+          </button>
+        </div>
+
+        <!-- TAB CONTENT CONTAINER -->
+        <div class="flex-1 overflow-hidden relative min-h-0">
+
+          <!-- TAB 1: MANAGE NAMES -->
+          <div id="tabManageContent" class="absolute inset-0 flex flex-col p-3.5 sm:p-5 gap-3 sm:gap-4 overflow-hidden">
+
+            <!-- Input Switch Mode (Single vs Bulk Paste) -->
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+              <span>Add Options</span>
+              <div class="flex gap-2">
+                <button id="modeSingleBtn"
+                  class="text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4">Single
+                  Input</button>
+                <span>|</span>
+                <button id="modeBulkBtn" class="hover:text-indigo-600 dark:hover:text-indigo-400">Bulk Paste</button>
+              </div>
+            </div>
+
+            <!-- Single Input Form -->
+            <form id="singleAddForm" class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="singleNameInput" placeholder="Name (e.g. Name1)"
+                class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              <input type="text" id="singleCategoryInput" placeholder="Topic (e.g. Topic1)"
+                class="w-full sm:w-2/5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              <button type="submit"
+                class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95 shrink-0">
+                <i class="fa-solid fa-plus text-xs"></i>
+                Add
+              </button>
+            </form>
+
+            <!-- Bulk Paste Form (Hidden by default) -->
+            <form id="bulkAddForm" class="hidden flex-col gap-2">
+              <textarea id="bulkNameInput" rows="3"
+                placeholder="Paste names or 2 columns from Excel/ODS (e.g. Name [Tab] Topic, or Name - Topic per line)..."
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm resize-none"></textarea>
+              <div class="flex justify-end gap-2">
+                <button type="submit"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl transition">
+                  Add All Names
+                </button>
+              </div>
+            </form>
+
+            <!-- Name List Search Header -->
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div class="relative flex-1">
+                <i
+                  class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="searchNamesInput" placeholder="Search pool..."
+                  class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Scrollable Names List -->
+            <div id="namesListContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
+              <!-- Rendered via JavaScript -->
+            </div>
+
+            <!-- Empty State for Names List -->
+            <div id="namesEmptyState"
+              class="hidden flex-1 flex-col items-center justify-center text-center p-6 text-slate-400 dark:text-slate-600">
+              <i class="fa-solid fa-users-slash text-3xl mb-2"></i>
+              <p class="text-xs font-semibold">No names in the lottery pool.</p>
+              <button id="loadPresetQuickBtn"
+                class="mt-2 text-xs text-indigo-600 dark:text-indigo-400 underline font-medium">Load sample
+                names</button>
+            </div>
+
+          </div>
+
+          <!-- TAB 2: DRAW HISTORY -->
+          <div id="tabHistoryContent" class="absolute inset-0 flex flex-col p-3.5 sm:p-5 gap-3 sm:gap-4 overflow-hidden hidden">
+
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500">Winners Timeline</span>
+              <div class="flex items-center gap-3">
+                <button id="exportHistoryBtn"
+                  class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1">
+                  <i class="fa-solid fa-copy"></i> Copy
+                </button>
+                <button id="clearHistoryBtn"
+                  class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1">
+                  <i class="fa-solid fa-trash-can"></i> Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- History List -->
+            <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Empty History State -->
+            <div id="historyEmptyState"
+              class="hidden flex-1 flex-col items-center justify-center text-center p-6 text-slate-400 dark:text-slate-600">
+              <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+              <p class="text-xs font-semibold">No winners picked yet!</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- PRESETS DIALOG MODAL -->
+  <div id="presetsModal"
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Select a Name Preset</h3>
+        <button id="closePresetModalBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-2">
+        <button data-preset="categorized"
+          class="preset-option-btn w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <div>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Categorized List (Name - Category)</p>
+            <p class="text-xs text-slate-400">Sample names with categories (e.g. Name1 - Category1)</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+        </button>
+
+        <button data-preset="numbers"
+          class="preset-option-btn w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <div>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Raffle Numbers (1 - 30)</p>
+            <p class="text-xs text-slate-400">Numbers #1 to #30 for quick raffle draws</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+        </button>
+
+        <button data-preset="students"
+          class="preset-option-btn w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <div>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Classroom Students</p>
+            <p class="text-xs text-slate-400">Sample students with grade categories</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+        </button>
+
+        <button data-preset="teams"
+          class="preset-option-btn w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <div>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Tech Team Members</p>
+            <p class="text-xs text-slate-400">Team roles with department categories</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONFIRMATION MODAL (No native confirm alert used) -->
+  <div id="confirmModal"
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl p-5 sm:p-6 shadow-2xl text-center space-y-4">
+      <div
+        class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="confirmTitle" class="font-display font-bold text-lg text-slate-900 dark:text-white">Are you sure?</h3>
+      <p id="confirmMessage" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">This action cannot be undone.
+      </p>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button id="confirmCancelBtn"
+          class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          Cancel
+        </button>
+        <button id="confirmOkBtn"
+          class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- APP STATE ---
+    const APP_STORAGE_KEY = 'lucky_draw_app_data_v1';
+
+    let state = {
+      names: [], // Array of objects: { id, name, drawn: false }
+      history: [], // Array of objects: { id, name, timestamp }
+      eliminationMode: false,
+      disableCategoryMode: false,
+      soundEnabled: true,
+      darkMode: true,
+      filterQuery: ''
+    };
+
+    let isSelecting = false;
+    let pendingConfirmAction = null;
+
+    // --- WEB AUDIO API SYNTHESIZER ---
+    class SoundEffects {
+      constructor() {
+        this.ctx = null;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTick() {
+        if (!state.soundEnabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(400 + Math.random() * 200, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.05);
+        } catch (e) {
+          // Ignore audio errors
+        }
+      }
+
+      playFanfare() {
+        if (!state.soundEnabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const startTime = this.ctx.currentTime + (idx * 0.08);
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.4);
+          });
+        } catch (e) {
+          // Ignore audio errors
+        }
+      }
+    }
+
+    const sound = new SoundEffects();
+
+    // --- LOCAL STORAGE HELPERS ---
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(APP_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+        }
+      } catch (e) {
+        console.error('Failed to load state from localStorage', e);
+      }
+
+      // Reset search filter on state load so search starts clear
+      state.filterQuery = '';
+
+      // Permanently enforce dark mode theme
+      state.darkMode = true;
+      document.documentElement.classList.add('dark');
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save state to localStorage', e);
+      }
+      render();
+    }
+
+    // --- DOM ELEMENTS ---
+    const totalNamesCountEl = document.getElementById('totalNamesCount');
+    const remainingNamesCountEl = document.getElementById('remainingNamesCount');
+    const drawnNamesCountEl = document.getElementById('drawnNamesCount');
+
+    const drawStatusDot = document.getElementById('drawStatusDot');
+    const drawStatusText = document.getElementById('drawStatusText');
+    const displayPlaceholder = document.getElementById('displayPlaceholder');
+    const displayNameContainer = document.getElementById('displayNameContainer');
+    const displayNameSub = document.getElementById('displayNameSub');
+    const displayNameEl = document.getElementById('displayName');
+    const drawBtn = document.getElementById('drawBtn');
+    const drawBtnText = document.getElementById('drawBtnText');
+    const eliminationModeToggle = document.getElementById('eliminationModeToggle');
+    const disableCategoryToggle = document.getElementById('disableCategoryToggle');
+    const resetPoolBtn = document.getElementById('resetPoolBtn');
+    const resetPoolBtn2 = document.getElementById('resetPoolBtn2');
+    const resetPoolBtn3 = document.getElementById('resetPoolBtn3');
+
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    const presetBtn = document.getElementById('presetBtn');
+
+    const tabManageBtn = document.getElementById('tabManageBtn');
+    const tabHistoryBtn = document.getElementById('tabHistoryBtn');
+    const tabManageContent = document.getElementById('tabManageContent');
+    const tabHistoryContent = document.getElementById('tabHistoryContent');
+    const tabNamesCountBadge = document.getElementById('tabNamesCountBadge');
+    const tabHistoryCountBadge = document.getElementById('tabHistoryCountBadge');
+
+    const singleAddForm = document.getElementById('singleAddForm');
+    const singleNameInput = document.getElementById('singleNameInput');
+    const singleCategoryInput = document.getElementById('singleCategoryInput');
+    const bulkAddForm = document.getElementById('bulkAddForm');
+    const bulkNameInput = document.getElementById('bulkNameInput');
+    const modeSingleBtn = document.getElementById('modeSingleBtn');
+    const modeBulkBtn = document.getElementById('modeBulkBtn');
+
+    const searchNamesInput = document.getElementById('searchNamesInput');
+    const clearAllNamesBtn = document.getElementById('clearAllNamesBtn');
+    const namesListContainer = document.getElementById('namesListContainer');
+    const namesEmptyState = document.getElementById('namesEmptyState');
+    const loadPresetQuickBtn = document.getElementById('loadPresetQuickBtn');
+
+    const historyListContainer = document.getElementById('historyListContainer');
+    const historyEmptyState = document.getElementById('historyEmptyState');
+    const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+    const winnerModal = document.getElementById('winnerModal');
+    const winnerModalCard = document.getElementById('winnerModalCard');
+    const modalWinnerName = document.getElementById('modalWinnerName');
+    const modalWinnerCategoryContainer = document.getElementById('modalWinnerCategoryContainer');
+    const modalWinnerCategoryText = document.getElementById('modalWinnerCategoryText');
+    const modalWinnerTime = document.getElementById('modalWinnerTime');
+    const drawAgainBtn = document.getElementById('drawAgainBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    const presetsModal = document.getElementById('presetsModal');
+    const closePresetModalBtn = document.getElementById('closePresetModalBtn');
+
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    const confirmOkBtn = document.getElementById('confirmOkBtn');
+
+    // --- HELPER CALCULATIONS ---
+    function getRemainingNames() {
+      return state.names.filter(n => !n.drawn);
+    }
+
+    function getCategoryFromName(nameStr) {
+      if (!nameStr || !nameStr.includes(' - ')) return '';
+      const parts = nameStr.split(' - ');
+      return parts[parts.length - 1].trim();
+    }
+
+    // --- RENDER FUNCTIONS ---
+    function render() {
+      const remaining = getRemainingNames();
+      const drawnCount = state.names.filter(n => n.drawn).length;
+
+      // Stats
+      totalNamesCountEl.textContent = state.names.length;
+      remainingNamesCountEl.textContent = remaining.length;
+      drawnNamesCountEl.textContent = drawnCount;
+      tabNamesCountBadge.textContent = state.names.length;
+      tabHistoryCountBadge.textContent = state.history.length;
+
+      // Elimination & Category Checkboxes
+      eliminationModeToggle.checked = !!state.eliminationMode;
+      disableCategoryToggle.checked = !!state.disableCategoryMode;
+
+      // Sound Icon
+      soundIcon.className = state.soundEnabled ? 'fa-solid fa-volume-high text-sm' : 'fa-solid fa-volume-xmark text-sm text-slate-400';
+
+      // Draw Button Status
+      if (isSelecting) {
+        drawBtn.disabled = true;
+        drawStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
+        drawStatusText.textContent = "Selecting...";
+      } else if (remaining.length === 0) {
+        drawBtn.disabled = true;
+        drawStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
+        drawStatusText.textContent = state.names.length === 0 ? "Pool is Empty" : "All Drawn";
+      } else {
+        drawBtn.disabled = false;
+        drawStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        drawStatusText.textContent = "Ready to Pick";
+      }
+
+      // Search Filter Input Element Sync
+      if (searchNamesInput && document.activeElement !== searchNamesInput) {
+        searchNamesInput.value = state.filterQuery || '';
+      }
+
+      renderNamesList();
+      renderHistoryList();
+    }
+
+    function renderNamesList() {
+      namesListContainer.innerHTML = '';
+
+      let filtered = state.names;
+      if (state.filterQuery && state.filterQuery.trim()) {
+        const q = state.filterQuery.toLowerCase().trim();
+        filtered = filtered.filter(n => n.name.toLowerCase().includes(q));
+      }
+
+      if (filtered.length === 0) {
+        namesEmptyState.classList.remove('hidden');
+        namesListContainer.classList.add('hidden');
+        const emptyText = namesEmptyState.querySelector('p');
+        const quickBtn = document.getElementById('loadPresetQuickBtn');
+        if (state.names.length > 0) {
+          if (emptyText) emptyText.textContent = 'No matching names found.';
+          if (quickBtn) quickBtn.classList.add('hidden');
+        } else {
+          if (emptyText) emptyText.textContent = 'No names in the lottery pool.';
+          if (quickBtn) quickBtn.classList.remove('hidden');
+        }
+      } else {
+        namesEmptyState.classList.add('hidden');
+        namesListContainer.classList.remove('hidden');
+
+        filtered.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${item.drawn
+            ? 'bg-slate-100/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/50 opacity-60'
+            : 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/60 hover:border-indigo-300 dark:hover:border-indigo-700'
+            }`;
+
+          card.innerHTML = `
+            <div class="flex items-center gap-2.5 overflow-hidden pr-2">
+              <span class="w-2 h-2 rounded-full ${item.drawn ? 'bg-slate-400' : 'bg-emerald-500'} shrink-0"></span>
+              <span class="text-xs sm:text-sm font-semibold truncate ${item.drawn ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}">
+                ${escapeHtml(item.name)}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              ${item.drawn
+              ? `<button data-id="${item.id}" class="enable-name-btn text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 transition flex items-center gap-1 active:scale-95">
+                      <i class="fa-solid fa-rotate-left text-[10px]"></i> Enable
+                     </button>`
+              : `<button data-id="${item.id}" class="disable-name-btn text-[11px] font-semibold px-2 py-0.5 rounded-md text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition">
+                      Disable
+                     </button>`
+            }
+              <button data-id="${item.id}" class="delete-name-btn p-1.5 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition" title="Delete">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          `;
+
+          namesListContainer.appendChild(card);
+        });
+      }
+    }
+
+    function renderHistoryList() {
+      historyListContainer.innerHTML = '';
+
+      if (state.history.length === 0) {
+        historyEmptyState.classList.remove('hidden');
+        historyListContainer.classList.add('hidden');
+      } else {
+        historyEmptyState.classList.add('hidden');
+        historyListContainer.classList.remove('hidden');
+
+        // Show newest draw on top
+        state.history.slice().reverse().forEach((item, index) => {
+          const rank = state.history.length - index;
+          const card = document.createElement('div');
+          card.className = "flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800";
+
+          card.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+              <span class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center justify-center shrink-0">
+                #${rank}
+              </span>
+              <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+                ${escapeHtml(item.name)}
+              </span>
+            </div>
+            <span class="text-[10px] text-slate-400 shrink-0 font-medium">${item.timestamp}</span>
+          `;
+
+          historyListContainer.appendChild(card);
+        });
+      }
+    }
+
+    // --- PICKER CORE LOGIC ---
+    function triggerRandomDraw() {
+      const remaining = getRemainingNames();
+      if (remaining.length === 0 || isSelecting) return;
+
+      isSelecting = true;
+      render();
+
+      // UI Switch to cycling view
+      displayPlaceholder.classList.add('hidden');
+      displayNameContainer.classList.remove('hidden');
+      displayNameSub.classList.remove('opacity-0');
+      displayNameSub.textContent = "Selecting Winner...";
+
+      let counter = 0;
+      let speed = 40; // Starts fast (40ms)
+      const totalTicks = 35 + Math.floor(Math.random() * 15); // Total iterations before stopping
+
+      function cycle() {
+        const randomIndex = Math.floor(Math.random() * remaining.length);
+        const currentSample = remaining[randomIndex].name;
+
+        displayNameEl.textContent = currentSample;
+        sound.playTick();
+
+        counter++;
+
+        if (counter < totalTicks) {
+          // Slow down progressively towards the end
+          if (counter > totalTicks - 12) {
+            speed += 25;
+          } else if (counter > totalTicks - 5) {
+            speed += 60;
+          }
+          setTimeout(cycle, speed);
+        } else {
+          // Final Winner Picked
+          finalizeWinner(remaining[randomIndex]);
+        }
+      }
+
+      cycle();
+    }
+
+    function finalizeWinner(winnerObj) {
+      isSelecting = false;
+
+      // Update Winner Object State
+      if (state.eliminationMode || state.disableCategoryMode) {
+        winnerObj.drawn = true;
+      }
+
+      // Disable all names belonging to the same category if disableCategoryMode is active
+      if (state.disableCategoryMode) {
+        const winnerCategory = getCategoryFromName(winnerObj.name);
+        if (winnerCategory) {
+          state.names.forEach(n => {
+            if (getCategoryFromName(n.name).toLowerCase() === winnerCategory.toLowerCase()) {
+              n.drawn = true;
+            }
+          });
+        }
+      }
+
+      // Add to history
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      state.history.push({
+        id: Date.now().toString(),
+        name: winnerObj.name,
+        timestamp: timeStr
+      });
+
+      // Victory UI Updates
+      displayNameSub.textContent = "Winner!";
+      displayNameEl.textContent = winnerObj.name;
+
+      // Launch Confetti
+      launchConfetti();
+
+      // Play Sound
+      sound.playFanfare();
+
+      // Open Modal Spotlight after short delay
+      setTimeout(() => {
+        const fullStr = winnerObj.name;
+        if (fullStr.includes(' - ')) {
+          const parts = fullStr.split(' - ');
+          const cat = parts.pop().trim();
+          const nameOnly = parts.join(' - ').trim();
+
+          modalWinnerName.textContent = nameOnly;
+          if (modalWinnerCategoryContainer && modalWinnerCategoryText) {
+            modalWinnerCategoryText.textContent = cat;
+            modalWinnerCategoryContainer.classList.remove('hidden');
+          }
+        } else {
+          modalWinnerName.textContent = fullStr;
+          if (modalWinnerCategoryContainer) {
+            modalWinnerCategoryContainer.classList.add('hidden');
+          }
+        }
+        modalWinnerTime.textContent = timeStr;
+        openWinnerModal();
+      }, 400);
+
+      saveState();
+    }
+
+    function launchConfetti() {
+      try {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
+      } catch (e) {
+        // Fallback if canvas confetti fails
+      }
+    }
+
+    // --- MODAL CONTROLS ---
+    function openWinnerModal() {
+      winnerModal.classList.remove('opacity-0', 'pointer-events-none');
+      winnerModalCard.classList.remove('scale-95');
+      winnerModalCard.classList.add('scale-100');
+    }
+
+    function closeWinnerModal() {
+      winnerModal.classList.add('opacity-0', 'pointer-events-none');
+      winnerModalCard.classList.remove('scale-100');
+      winnerModalCard.classList.add('scale-95');
+    }
+
+    function showConfirmModal(title, message, onConfirm) {
+      confirmTitle.textContent = title;
+      confirmMessage.textContent = message;
+      pendingConfirmAction = onConfirm;
+      confirmModal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeConfirmModal() {
+      confirmModal.classList.add('opacity-0', 'pointer-events-none');
+      pendingConfirmAction = null;
+    }
+
+    // --- PRESETS DATA ---
+    function loadPresetData(presetKey) {
+      let list = [];
+      if (presetKey === 'categorized') {
+        list = [
+          'Name1 - Category1',
+          'Name2 - Category2',
+          'Name3 - Category1',
+          'Name4 - Category3',
+          'Name5 - Category2'
+        ];
+      } else if (presetKey === 'numbers') {
+        for (let i = 1; i <= 30; i++) {
+          list.push(`Ticket #${i < 10 ? '0' + i : i}`);
+        }
+      } else if (presetKey === 'students') {
+        list = ['Alex Rivera - Grade 10', 'Emma Watson - Grade 10', 'Liam Smith - Grade 11', 'Sophia Chen - Grade 11', 'Noah Jackson - Grade 12', 'Olivia Davis - Grade 12', 'Ethan Miller - Grade 10', 'Ava Wilson - Grade 11'];
+      } else if (presetKey === 'teams') {
+        list = ['Frontend Dev - Tech Team', 'Backend Lead - Tech Team', 'UI/UX Designer - Design Team', 'Product Manager - Product Team', 'QA Tester - QA Team', 'DevOps Specialist - Infrastructure Team'];
+      }
+
+      state.names = list.map((n, idx) => ({ id: `${Date.now()}_${idx}`, name: n, drawn: false }));
+      saveState();
+    }
+
+    // --- EVENT LISTENERS SETUP ---
+    function initEventListeners() {
+      // Draw Button Click
+      drawBtn.addEventListener('click', triggerRandomDraw);
+
+      // Elimination Mode Toggle
+      eliminationModeToggle.addEventListener('change', (e) => {
+        state.eliminationMode = e.target.checked;
+        saveState();
+      });
+
+      // Disable Category Toggle
+      disableCategoryToggle.addEventListener('change', (e) => {
+        state.disableCategoryMode = e.target.checked;
+        saveState();
+      });
+
+      // Reset Selection Pool Handler (Re-enables all names without deleting)
+      const handleResetPool = () => {
+        showConfirmModal(
+          "Reset Selection Pool?",
+          "This will reset all drawn and disabled names back to active status. Your names will NOT be deleted.",
+          () => {
+            state.names.forEach(n => n.drawn = false);
+            saveState();
+          }
+        );
+      };
+
+      if (resetPoolBtn) resetPoolBtn.addEventListener('click', handleResetPool);
+      if (resetPoolBtn2) resetPoolBtn2.addEventListener('click', handleResetPool);
+      if (resetPoolBtn3) resetPoolBtn3.addEventListener('click', handleResetPool);
+
+      // Sound Toggle
+      soundToggleBtn.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        sound.initCtx();
+        saveState();
+      });
+
+      // Single Name Form Submit
+      singleAddForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = singleNameInput.value.trim();
+        const cat = singleCategoryInput ? singleCategoryInput.value.trim() : '';
+        const fullName = (val && cat) ? `${val} - ${cat}` : val;
+        if (fullName) {
+          state.names.push({ id: Date.now().toString(), name: fullName, drawn: false });
+          singleNameInput.value = '';
+          if (singleCategoryInput) singleCategoryInput.value = '';
+          saveState();
+        }
+      });
+
+      // Bulk Name Form Submit
+      bulkAddForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const raw = bulkNameInput.value.trim();
+        if (raw) {
+          const parsedNames = [];
+          const lines = raw.split(/\r?\n/);
+
+          lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return;
+
+            // Check if line contains tab characters (copied 2+ columns from Excel / ODS / Calc)
+            if (trimmedLine.includes('\t')) {
+              const cols = trimmedLine.split('\t')
+                .map(c => c.trim().replace(/^["']|["']$/g, ''))
+                .filter(Boolean);
+              if (cols.length >= 2) {
+                parsedNames.push(`${cols[0]} - ${cols[1]}`);
+              } else if (cols.length === 1) {
+                parsedNames.push(cols[0]);
+              }
+            } else if (trimmedLine.includes(',')) {
+              // Handle comma-separated values if no tabs are present
+              const items = trimmedLine.split(',')
+                .map(s => s.trim().replace(/^["']|["']$/g, ''))
+                .filter(Boolean);
+              items.forEach(item => parsedNames.push(item));
+            } else {
+              // Single item line (e.g. Name or Name - Category)
+              parsedNames.push(trimmedLine.replace(/^["']|["']$/g, ''));
+            }
+          });
+
+          parsedNames.forEach((n, idx) => {
+            state.names.push({ id: `${Date.now()}_${idx}`, name: n, drawn: false });
+          });
+          bulkNameInput.value = '';
+          saveState();
+        }
+      });
+
+      // Switch Single/Bulk mode UI
+      modeSingleBtn.addEventListener('click', () => {
+        singleAddForm.classList.remove('hidden');
+        bulkAddForm.classList.add('hidden');
+        modeSingleBtn.className = "text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4";
+        modeBulkBtn.className = "hover:text-indigo-600 dark:hover:text-indigo-400";
+      });
+
+      modeBulkBtn.addEventListener('click', () => {
+        singleAddForm.classList.add('hidden');
+        bulkAddForm.classList.remove('hidden');
+        bulkBulkBtn = modeBulkBtn;
+        modeBulkBtn.className = "text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4";
+        modeSingleBtn.className = "hover:text-indigo-600 dark:hover:text-indigo-400";
+      });
+
+      // Search Filter Input
+      searchNamesInput.addEventListener('input', (e) => {
+        state.filterQuery = e.target.value;
+        renderNamesList();
+      });
+
+      searchNamesInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape') {
+          searchNamesInput.value = '';
+          state.filterQuery = '';
+          renderNamesList();
+        }
+      });
+
+      // Name Item Actions (Delete, Enable, Disable)
+      namesListContainer.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-name-btn');
+        if (deleteBtn) {
+          const id = deleteBtn.getAttribute('data-id');
+          state.names = state.names.filter(n => n.id !== id);
+          saveState();
+          return;
+        }
+
+        const enableBtn = e.target.closest('.enable-name-btn');
+        if (enableBtn) {
+          const id = enableBtn.getAttribute('data-id');
+          const target = state.names.find(n => n.id === id);
+          if (target) {
+            target.drawn = false;
+            saveState();
+          }
+          return;
+        }
+
+        const disableBtn = e.target.closest('.disable-name-btn');
+        if (disableBtn) {
+          const id = disableBtn.getAttribute('data-id');
+          const target = state.names.find(n => n.id === id);
+          if (target) {
+            target.drawn = true;
+            saveState();
+          }
+          return;
+        }
+      });
+
+      // Clear All Names Button
+      clearAllNamesBtn.addEventListener('click', () => {
+        showConfirmModal(
+          "Clear All Names?",
+          "Are you sure you want to delete all names from the pool?",
+          () => {
+            state.names = [];
+            saveState();
+          }
+        );
+      });
+
+      // Tab Switching
+      tabManageBtn.addEventListener('click', () => {
+        tabManageContent.classList.remove('hidden');
+        tabHistoryContent.classList.add('hidden');
+        tabManageBtn.className = "flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm";
+        tabHistoryBtn.className = "flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200";
+      });
+
+      tabHistoryBtn.addEventListener('click', () => {
+        tabHistoryContent.classList.remove('hidden');
+        tabManageContent.classList.add('hidden');
+        tabHistoryBtn.className = "flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm";
+        tabManageBtn.className = "flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200";
+      });
+
+      // Clear History
+      clearHistoryBtn.addEventListener('click', () => {
+        showConfirmModal(
+          "Clear Selection History?",
+          "This will erase the timeline of previously drawn winners.",
+          () => {
+            state.history = [];
+            saveState();
+          }
+        );
+      });
+
+      // Export/Copy History
+      exportHistoryBtn.addEventListener('click', () => {
+        if (state.history.length === 0) return;
+        const text = state.history.map((h, i) => `#${i + 1}: ${h.name} (${h.timestamp})`).join('\n');
+
+        // Use document.execCommand fallback as per environment context rules
+        const dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+
+        const origText = exportHistoryBtn.innerHTML;
+        exportHistoryBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Copied!';
+        setTimeout(() => {
+          exportHistoryBtn.innerHTML = origText;
+        }, 1800);
+      });
+
+      // Winner Modal Close & Draw Again
+      closeModalBtn.addEventListener('click', closeWinnerModal);
+      drawAgainBtn.addEventListener('click', () => {
+        closeWinnerModal();
+        setTimeout(() => {
+          triggerRandomDraw();
+        }, 300);
+      });
+
+      // Preset Dialog
+      presetBtn.addEventListener('click', () => {
+        presetsModal.classList.remove('opacity-0', 'pointer-events-none');
+      });
+      loadPresetQuickBtn.addEventListener('click', () => {
+        presetsModal.classList.remove('opacity-0', 'pointer-events-none');
+      });
+      closePresetModalBtn.addEventListener('click', () => {
+        presetsModal.classList.add('opacity-0', 'pointer-events-none');
+      });
+
+      document.querySelectorAll('.preset-option-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const presetKey = e.currentTarget.getAttribute('data-preset');
+          loadPresetData(presetKey);
+          presetsModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+      });
+
+      // Confirmation Modal Listeners
+      confirmCancelBtn.addEventListener('click', closeConfirmModal);
+      confirmOkBtn.addEventListener('click', () => {
+        if (typeof pendingConfirmAction === 'function') {
+          pendingConfirmAction();
+        }
+        closeConfirmModal();
+      });
+    }
+
+    // Utility text escaper
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function (m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+
+    // Initialize App on Window Load
+    window.onload = function () {
+      loadState();
+      initEventListeners();
+      render();
+    };
+  </script>
+</body>
+
+</html>
